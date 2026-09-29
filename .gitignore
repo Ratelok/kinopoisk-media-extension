@@ -1,0 +1,16 @@
+# Dependency & OS files
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+
+# Build outputs (optional in repo, but zip/xpi can be built by CI or included in dist)
+# We ignore temporary archives and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local secrets / test configs
+.env
+.env.local
