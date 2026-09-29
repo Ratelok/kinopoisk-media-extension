@@ -4,29 +4,25 @@
  */
 
 :root {
-  /* Переменные для светлой темы Kinopoisk (по умолчанию) */
+  /* Базовые цвета для светлой темы Кинопоиска */
   --kp-ms-bg-btn: #f2f2f5;
   --kp-ms-bg-btn-hover: #e5e5ea;
   --kp-ms-bg-btn-active: #dcdce2;
   --kp-ms-text-primary: #141414;
   --kp-ms-text-muted: #666666;
-  --kp-ms-border-subtle: rgba(0, 0, 0, 0.06);
+  --kp-ms-border-subtle: rgba(0, 0, 0, 0.05);
 
+  /* Фирменный оранжевый Кинопоиска */
   --kp-ms-primary-grad: linear-gradient(90deg, #ff5500 0%, #ff6600 100%);
   --kp-ms-primary-hover: linear-gradient(90deg, #ff6600 0%, #ff7711 100%);
   --kp-ms-primary-shadow: 0 4px 16px rgba(255, 85, 0, 0.28);
 
-  --kp-ms-success-bg: #eafaf1;
-  --kp-ms-success-text: #059669;
-  --kp-ms-success-border: rgba(5, 150, 105, 0.25);
-
+  /* Акценты */
+  --kp-ms-success-icon: #10b981;
   --kp-ms-info-bg: #e8f4fd;
   --kp-ms-info-text: #0284c7;
-  --kp-ms-info-border: rgba(2, 132, 199, 0.25);
-
   --kp-ms-warning-bg: #fff8e6;
   --kp-ms-warning-text: #b45309;
-  --kp-ms-warning-border: rgba(180, 83, 9, 0.25);
 
   --kp-ms-tooltip-bg: #1c1c1f;
   --kp-ms-tooltip-text: #ffffff;
@@ -35,32 +31,16 @@
   --kp-ms-radius: 16px;
 }
 
-/* Тёмная тема Kinopoisk */
-.kp-ms-theme-dark,
-@media (prefers-color-scheme: dark) {
-  :root {
-    --kp-ms-bg-btn: rgba(255, 255, 255, 0.1);
-    --kp-ms-bg-btn-hover: rgba(255, 255, 255, 0.16);
-    --kp-ms-bg-btn-active: rgba(255, 255, 255, 0.22);
-    --kp-ms-text-primary: #ffffff;
-    --kp-ms-text-muted: rgba(255, 255, 255, 0.7);
-    --kp-ms-border-subtle: rgba(255, 255, 255, 0.12);
-
-    --kp-ms-success-bg: rgba(46, 213, 115, 0.15);
-    --kp-ms-success-text: #2ed573;
-    --kp-ms-success-border: rgba(46, 213, 115, 0.35);
-
-    --kp-ms-info-bg: rgba(56, 189, 248, 0.15);
-    --kp-ms-info-text: #38bdf8;
-    --kp-ms-info-border: rgba(56, 189, 248, 0.35);
-
-    --kp-ms-warning-bg: rgba(255, 171, 0, 0.15);
-    --kp-ms-warning-text: #ffab00;
-    --kp-ms-warning-border: rgba(255, 171, 0, 0.35);
-
-    --kp-ms-tooltip-bg: #2a2a2e;
-    --kp-ms-tooltip-text: #ffffff;
-  }
+/* При тёмной теме Кинопоиска */
+.kp-ms-theme-dark {
+  --kp-ms-bg-btn: rgba(255, 255, 255, 0.1);
+  --kp-ms-bg-btn-hover: rgba(255, 255, 255, 0.16);
+  --kp-ms-bg-btn-active: rgba(255, 255, 255, 0.22);
+  --kp-ms-text-primary: #ffffff;
+  --kp-ms-text-muted: rgba(255, 255, 255, 0.7);
+  --kp-ms-border-subtle: rgba(255, 255, 255, 0.1);
+  --kp-ms-success-icon: #2ed573;
+  --kp-ms-tooltip-bg: #2a2a2e;
 }
 
 .kp-ms-root {
@@ -73,6 +53,7 @@
   user-select: none;
   z-index: 10;
   vertical-align: middle;
+  flex-shrink: 0;
   animation: kp-ms-fade-in 0.2s ease-out;
 }
 
@@ -105,10 +86,11 @@
 .kp-ms-btn-download {
   background-color: var(--kp-ms-bg-btn);
   color: var(--kp-ms-text-primary);
+  border: 1px solid var(--kp-ms-border-subtle);
 }
 
 .kp-ms-btn-download .kp-ms-icon {
-  fill: #ff5500; /* Фирменный оранжевый акцент иконки Кинопоиска */
+  fill: #ff5500; /* Фирменная оранжевая иконка */
 }
 
 .kp-ms-btn-download:hover {
@@ -121,7 +103,7 @@
   transform: scale(0.98);
 }
 
-/* Кнопка "Смотреть в Jellyfin" (фирменный стиль основной кнопки Кинопоиска) */
+/* Кнопка "Смотреть в Jellyfin" (фирменный стиль главной кнопки Кинопоиска) */
 .kp-ms-btn-watch {
   background: var(--kp-ms-primary-grad);
   color: #ffffff !important;
@@ -157,21 +139,21 @@
   white-space: nowrap;
 }
 
-/* Статус: В медиатеке */
+/* Статус: Скачан (серый фон точь-в-точь как у "Буду смотреть" и "...") */
 .kp-ms-badge-available {
-  background-color: var(--kp-ms-success-bg);
-  border: 1px solid var(--kp-ms-success-border);
-  color: var(--kp-ms-success-text);
+  background-color: var(--kp-ms-bg-btn);
+  border: 1px solid var(--kp-ms-border-subtle);
+  color: var(--kp-ms-text-primary);
 }
 
 .kp-ms-badge-available .kp-ms-icon {
-  fill: var(--kp-ms-success-text);
+  fill: var(--kp-ms-success-icon);
 }
 
 /* Статус: Запрошен */
 .kp-ms-badge-requested {
   background-color: var(--kp-ms-warning-bg);
-  border: 1px solid var(--kp-ms-warning-border);
+  border: 1px solid rgba(180, 83, 9, 0.25);
   color: var(--kp-ms-warning-text);
 }
 
@@ -182,7 +164,7 @@
 /* Статус: Качается */
 .kp-ms-badge-downloading {
   background-color: var(--kp-ms-info-bg);
-  border: 1px solid var(--kp-ms-info-border);
+  border: 1px solid rgba(2, 132, 199, 0.25);
   color: var(--kp-ms-info-text);
   position: relative;
   overflow: hidden;

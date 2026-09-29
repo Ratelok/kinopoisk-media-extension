@@ -7,10 +7,9 @@
   'use strict';
 
   const extApi = typeof browser !== 'undefined' ? browser : chrome;
-  let currentKinopoiskId = null;
-  let isProcessing = false;
+  let currentActiveId = null;
 
-  // Иконки SVG в фирменном стиле Кинопоиска
+  // Иконки SVG
   const ICONS = {
     download: `<svg class="kp-ms-icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>`,
     play: `<svg class="kp-ms-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`,
@@ -20,7 +19,7 @@
   };
 
   /**
-   * Определение темы (Светлая или Тёмная) на странице Кинопоиска
+   * Определение темы (Светлая или Тёмная)
    */
   function detectTheme() {
     try {
@@ -35,7 +34,7 @@
   }
 
   /**
-   * Синхронизация геометрии (высота, скругления) с нативными кнопками Кинопоиска
+   * Точная адаптация стилей под нативные кнопки Кинопоиска («Буду смотреть», «...»)
    */
   function syncNativeGeometry(root, container) {
     if (!root || !container) return;
@@ -43,9 +42,19 @@
       const nativeBtn = container.querySelector('button');
       if (nativeBtn) {
         const comp = window.getComputedStyle(nativeBtn);
+        // Заимствуем точный фоновый цвет соседних серых кнопок
+        if (comp.backgroundColor && comp.backgroundColor !== 'transparent' && comp.backgroundColor !== 'rgba(0, 0, 0, 0)') {
+          root.style.setProperty('--kp-ms-bg-btn', comp.backgroundColor);
+        }
+        // Заимствуем цвет текста
+        if (comp.color) {
+          root.style.setProperty('--kp-ms-text-primary', comp.color);
+        }
+        // Заимствуем точную высоту
         if (comp.height && parseInt(comp.height, 10) >= 36) {
           root.style.setProperty('--kp-ms-height', comp.height);
         }
+        // Заимствуем скругление
         if (comp.borderRadius) {
           root.style.setProperty('--kp-ms-radius', comp.borderRadius);
         }
@@ -72,28 +81,36 @@
     for (const script of ldScripts) {
       try {
         const json = JSON.parse(script.textContent);
-        const item = Array.isArray(json) ? json[0] : json;
-        if (item && (item['@type'] === 'Movie' || item['@type'] === 'TVSeries' || item['@type'] === 'Series')) {
-          title = item.name || '';
-          originalTitle = item.alternateName || item.alternativeHeadline || '';
-          if (item.datePublished) {
-            const y = parseInt(item.datePublished.substring(0, 4), 10);
-            if (!isNaN(y)) year = y;
+        const items = Array.isArray(json) ? json : [json];
+        for (const item of items) {
+          if (item && (item['@type'] === 'Movie' || item['@type'] === 'TVSeries' || item['@type'] === 'Series')) {
+            title = item.name || '';
+            originalTitle = item.alternateName || item.alternativeHeadline || '';
+            if (item.datePublished) {
+              const y = parseInt(item.datePublished.substring(0, 4), 10);
+              if (!isNaN(y)) year = y;
+            }
+            break;
           }
-          break;
         }
+        if (title) break;
       } catch (_) {}
     }
 
-    // 2. Fallback: h1
-    if (!title) {
-      const h1 = document.querySelector('h1');
-      if (h1) {
-        title = h1.textContent.trim().replace(/\s*\(\d{4}\)$/, '');
+    // 2. Fallback из h1
+    const h1 = document.querySelector('h1');
+    if (h1) {
+      const h1Text = h1.textContent.trim();
+      if (!title) {
+        title = h1Text.replace(/\s*\(\d{4}\)$/, '');
+      }
+      if (!year) {
+        const h1YearMatch = h1Text.match(/\b(19\d\d|20\d\d)\b/);
+        if (h1YearMatch) year = parseInt(h1YearMatch[1], 10);
       }
     }
 
-    // 3. Fallback: оригинальное название и год
+    // 3. Fallback оригинального названия (очищаем от возрастного рейтинга "18+", "16+")
     if (!originalTitle) {
       const origSpan = document.querySelector('span[class*="originalTitle"], span[data-tid*="OriginalTitle"]');
       if (origSpan) {
@@ -101,14 +118,19 @@
       }
     }
 
+    if (originalTitle) {
+      originalTitle = originalTitle.replace(/\s*\b\d+\+\s*$/, '').trim();
+    }
+
+    // 4. Fallback года из ссылок или текста
     if (!year) {
       const yearLink = document.querySelector('a[href*="/lists/movies/year--"]');
       if (yearLink) {
         const parsed = parseInt(yearLink.textContent.trim(), 10);
         if (!isNaN(parsed)) year = parsed;
       } else {
-        const textNodes = document.body.innerText.match(/\b(19\d\d|20\d\d)\b/);
-        if (textNodes) year = parseInt(textNodes[0], 10);
+        const match = document.body.innerText.match(/\b(19\d\d|20\d\d)\b/);
+        if (match) year = parseInt(match[0], 10);
       }
     }
 
@@ -117,16 +139,34 @@
     return {
       kinopoiskId,
       type: mediaType,
-      title,
+      title: title || originalTitle,
       originalTitle: originalTitle || title,
       year
     };
   }
 
   /**
-   * Поиск родительского контейнера для вставки виджета
+   * Поиск целевого контейнера строки действий
    */
   function findTargetContainer() {
+    // 1. Ищем кнопку "Буду смотреть" и поднимаемся к общему flex-контейнеру строки
+    const buttons = document.querySelectorAll('button');
+    for (const btn of buttons) {
+      const text = (btn.textContent || '').trim().toLowerCase();
+      if (text.includes('буду смотреть') || text.includes('смотреть') || text.includes('оценить')) {
+        let parent = btn.parentElement;
+        while (parent && parent !== document.body) {
+          const style = window.getComputedStyle(parent);
+          if (style.display && style.display.includes('flex')) {
+            return parent;
+          }
+          parent = parent.parentElement;
+        }
+        return btn.parentElement;
+      }
+    }
+
+    // 2. Селекторы контейнеров кнопок
     const selectors = [
       'div[class*="styles_buttonsContainer"]',
       'div[class*="styles_watchOnline"]',
@@ -135,23 +175,12 @@
       'div[data-tid="ButtonsContainer"]',
       'div[data-tid="ActionsBar"]'
     ];
-
     for (const sel of selectors) {
       const el = document.querySelector(sel);
       if (el) return el;
     }
 
-    const buttons = document.querySelectorAll('button');
-    for (const btn of buttons) {
-      const text = btn.innerText.toLowerCase();
-      if (text.includes('буду смотреть') || text.includes('смотреть') || text.includes('оценить')) {
-        const parent = btn.parentElement;
-        if (parent && parent.offsetHeight > 0) {
-          return parent;
-        }
-      }
-    }
-
+    // 3. Fallback под заголовком h1
     const h1 = document.querySelector('h1');
     if (h1 && h1.parentElement) {
       return h1.parentElement;
@@ -161,17 +190,28 @@
   }
 
   /**
+   * Ожидание появления контейнера в DOM (для SPA React рендера)
+   */
+  async function waitForContainer(maxRetries = 15, delayMs = 200) {
+    for (let i = 0; i < maxRetries; i++) {
+      const container = findTargetContainer();
+      if (container) return container;
+      await new Promise((r) => setTimeout(r, delayMs));
+    }
+    return null;
+  }
+
+  /**
    * Получение или создание корневого контейнера виджета
    */
-  function getOrCreateWidget() {
+  function getOrCreateWidget(container) {
     let root = document.getElementById('kp-ms-widget');
     if (root) {
-      // Обновляем тему
       applyTheme(root);
+      if (container) syncNativeGeometry(root, container);
       return root;
     }
 
-    const container = findTargetContainer();
     if (!container) return null;
 
     root = document.createElement('div');
@@ -192,10 +232,10 @@
   }
 
   /**
-   * Отрисовка состояния загрузки
+   * Отрисовка загрузки
    */
-  function renderLoading(text = 'Проверка...') {
-    const root = getOrCreateWidget();
+  function renderLoading(container, text = 'Проверка...') {
+    const root = getOrCreateWidget(container);
     if (!root) return;
 
     root.innerHTML = `
@@ -207,10 +247,10 @@
   }
 
   /**
-   * Отрисовка предупреждения
+   * Отрисовка ошибки / предупреждения
    */
-  function renderWarning(text, tooltip, action = null) {
-    const root = getOrCreateWidget();
+  function renderWarning(container, text, tooltip, action = null) {
+    const root = getOrCreateWidget(container);
     if (!root) return;
 
     root.innerHTML = `
@@ -230,10 +270,10 @@
   }
 
   /**
-   * Отрисовка кнопки «Скачать» (в нативном стиле вторичной кнопки Кинопоиска)
+   * Отрисовка кнопки «Скачать» (в нативном сером стиле кнопки «Буду смотреть»)
    */
-  function renderDownload(meta, tmdbId) {
-    const root = getOrCreateWidget();
+  function renderDownload(container, meta, tmdbId) {
+    const root = getOrCreateWidget(container);
     if (!root) return;
 
     root.innerHTML = `
@@ -247,7 +287,7 @@
     if (btn) {
       btn.onclick = async () => {
         btn.disabled = true;
-        renderLoading('Отправка запроса...');
+        renderLoading(container, 'Отправка запроса...');
 
         try {
           const res = await extApi.runtime.sendMessage({
@@ -256,12 +296,12 @@
           });
 
           if (res && res.success) {
-            renderState(res.updatedStatus, meta);
+            renderState(container, res.updatedStatus, meta);
           } else {
-            renderWarning('Ошибка', res?.error || 'Не удалось отправить запрос в Jellyseerr');
+            renderWarning(container, 'Ошибка', res?.error || 'Не удалось отправить запрос в Jellyseerr');
           }
         } catch (err) {
-          renderWarning('Ошибка', err.message);
+          renderWarning(container, 'Ошибка', err.message);
         }
       };
     }
@@ -270,8 +310,8 @@
   /**
    * Отрисовка состояния «Запрошен»
    */
-  function renderRequested() {
-    const root = getOrCreateWidget();
+  function renderRequested(container) {
+    const root = getOrCreateWidget(container);
     if (!root) return;
 
     root.innerHTML = `
@@ -288,8 +328,8 @@
   /**
    * Отрисовка состояния «Качается (X%)»
    */
-  function renderDownloading(progress) {
-    const root = getOrCreateWidget();
+  function renderDownloading(container, progress) {
+    const root = getOrCreateWidget(container);
     if (!root) return;
 
     const percentText = progress !== null ? ` ${progress}%` : '';
@@ -308,10 +348,10 @@
   }
 
   /**
-   * Отрисовка состояния «Скачан» и кнопки «Смотреть в Jellyfin»
+   * Отрисовка «Смотреть в Jellyfin» + серая кнопка «Скачан»
    */
-  function renderAvailable(jellyfinUrl) {
-    const root = getOrCreateWidget();
+  function renderAvailable(container, jellyfinUrl) {
+    const root = getOrCreateWidget(container);
     if (!root) return;
 
     let watchBtnHtml = '';
@@ -336,42 +376,42 @@
   /**
    * Главный диспетчер отрисовки
    */
-  function renderState(res, meta) {
+  function renderState(container, res, meta) {
     if (!res) {
-      renderWarning('Нет данных', 'Не удалось получить статус');
+      renderWarning(container, 'Нет данных', 'Не удалось получить статус');
       return;
     }
 
     switch (res.status) {
       case 'NOT_CONFIGURED':
-        renderWarning('Настроить стек', res.message || 'Кликните, чтобы открыть настройки расширения', () => {
+        renderWarning(container, 'Настроить стек', res.message || 'Кликните, чтобы открыть настройки расширения', () => {
           extApi.runtime.sendMessage({ action: 'OPEN_OPTIONS' });
         });
         break;
 
       case 'AVAILABLE':
-        renderAvailable(res.jellyfinUrl);
+        renderAvailable(container, res.jellyfinUrl);
         break;
 
       case 'DOWNLOADING':
-        renderDownloading(res.progress);
+        renderDownloading(container, res.progress);
         break;
 
       case 'REQUESTED':
-        renderRequested();
+        renderRequested(container);
         break;
 
       case 'NOT_REQUESTED':
-        renderDownload(meta, res.tmdbId);
+        renderDownload(container, meta, res.tmdbId);
         break;
 
       case 'NOT_FOUND':
-        renderWarning('Не найден', 'Фильм не найден в каталоге TMDb/Jellyseerr');
+        renderWarning(container, 'Не найден', 'Фильм не найден в каталоге TMDb/Jellyseerr');
         break;
 
       case 'ERROR':
       default:
-        renderWarning('Ошибка стека', res.message || 'Проверьте соединение с сервером');
+        renderWarning(container, 'Ошибка стека', res.message || 'Проверьте соединение с сервером');
         break;
     }
   }
@@ -383,28 +423,32 @@
     const meta = extractPageMetadata();
     if (!meta) return;
 
-    if (!force && currentKinopoiskId === meta.kinopoiskId && document.getElementById('kp-ms-widget')) {
+    const reqId = meta.kinopoiskId;
+    if (!force && currentActiveId === reqId && document.getElementById('kp-ms-widget')) {
       return;
     }
 
-    currentKinopoiskId = meta.kinopoiskId;
-    if (isProcessing) return;
-    isProcessing = true;
+    currentActiveId = reqId;
+
+    // Ждем готовности контейнера в DOM
+    const container = await waitForContainer();
+    if (!container || currentActiveId !== reqId) return;
+
+    renderLoading(container);
 
     try {
-      renderLoading();
-
       const response = await extApi.runtime.sendMessage({
         action: 'CHECK_STATUS',
         meta
       });
 
-      renderState(response, meta);
+      if (currentActiveId !== reqId) return;
+      renderState(container, response, meta);
     } catch (err) {
-      console.error('[Content] Check status failed:', err);
-      renderWarning('Ошибка', err.message);
-    } finally {
-      isProcessing = false;
+      console.error('[Content] Check status error:', err);
+      if (currentActiveId === reqId) {
+        renderWarning(container, 'Ошибка', err.message);
+      }
     }
   }
 
@@ -417,8 +461,8 @@
       lastUrl = currentUrl;
       const oldWidget = document.getElementById('kp-ms-widget');
       if (oldWidget) oldWidget.remove();
-      currentKinopoiskId = null;
-      setTimeout(() => initWidget(true), 400);
+      currentActiveId = null;
+      setTimeout(() => initWidget(true), 250);
     }
   }
 
@@ -436,7 +480,7 @@
 
   window.addEventListener('popstate', onUrlChange);
 
-  // Наблюдатель мутаций DOM
+  // Наблюдатель мутаций DOM (реагирует на догрузку кнопок React)
   let observerDebounce = null;
   const observer = new MutationObserver(() => {
     if (observerDebounce) clearTimeout(observerDebounce);
@@ -445,7 +489,7 @@
       if (!document.getElementById('kp-ms-widget') && window.location.pathname.match(/\/(film|series)\/\d+/)) {
         initWidget();
       }
-    }, 300);
+    }, 250);
   });
 
   observer.observe(document.body, { childList: true, subtree: true });
