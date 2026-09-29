@@ -4,18 +4,16 @@
  */
 
 :root {
-  /* Базовые цвета для светлой темы Кинопоиска (по умолчанию) */
-  --kp-ms-bg-btn: #f2f2f5;
-  --kp-ms-bg-btn-hover: #e5e5ea;
-  --kp-ms-bg-btn-active: #dcdce2;
-  --kp-ms-text-primary: #141414;
-  --kp-ms-text-muted: #666666;
-  --kp-ms-border-subtle: rgba(0, 0, 0, 0.05);
+  /* Базовые цвета для светлой темы Кинопоиска (из style_buttonLight__2FcOR) */
+  --kp-ms-bg-btn: rgba(0, 0, 0, 0.05);
+  --kp-ms-bg-btn-hover: rgba(0, 0, 0, 0.1);
+  --kp-ms-bg-btn-active: rgba(0, 0, 0, 0.15);
+  --kp-ms-text-primary: #000000;
+  --kp-ms-text-muted: rgba(0, 0, 0, 0.6);
 
-  /* Фирменный оранжевый Кинопоиска для главной кнопки */
-  --kp-ms-primary-grad: linear-gradient(90deg, #ff5500 0%, #ff6600 100%);
-  --kp-ms-primary-hover: linear-gradient(90deg, #ff6600 0%, #ff7711 100%);
-  --kp-ms-primary-shadow: 0 4px 16px rgba(255, 85, 0, 0.28);
+  /* Фирменный градиент Кинопоиска (из style_buttonAccent__mFEA0) */
+  --kp-ms-primary-grad: var(--primary-gradient, linear-gradient(135deg, #f50 69.93%, #d6bb00 100%));
+  --kp-ms-primary-hover: var(--primary-gradient-intense, linear-gradient(135deg, #eb4e00 69.91%, #c5ac00 100%));
 
   /* Акценты для иконок */
   --kp-ms-success-icon: #10b981;
@@ -25,21 +23,18 @@
   --kp-ms-tooltip-bg: #1c1c1f;
   --kp-ms-tooltip-text: #ffffff;
 
+  /* Точные размеры size52 кнопок Кинопоиска */
   --kp-ms-height: 52px;
-  --kp-ms-radius: 16px;
+  --kp-ms-radius: 52px; /* 5.2rem pill */
 }
 
-/* При тёмной теме Кинопоиска */
+/* При тёмной теме Кинопоиска (из style_buttonDark__KOlIq) */
 .kp-ms-theme-dark {
-  --kp-ms-bg-btn: rgba(255, 255, 255, 0.1);
-  --kp-ms-bg-btn-hover: rgba(255, 255, 255, 0.16);
-  --kp-ms-bg-btn-active: rgba(255, 255, 255, 0.22);
+  --kp-ms-bg-btn: rgba(31, 31, 31, 0.95);
+  --kp-ms-bg-btn-hover: rgba(41, 41, 41, 0.95);
+  --kp-ms-bg-btn-active: rgba(55, 55, 55, 0.95);
   --kp-ms-text-primary: #ffffff;
-  --kp-ms-text-muted: rgba(255, 255, 255, 0.7);
-  --kp-ms-border-subtle: rgba(255, 255, 255, 0.1);
-  --kp-ms-success-icon: #2ed573;
-  --kp-ms-info-icon: #38bdf8;
-  --kp-ms-warning-icon: #ffab00;
+  --kp-ms-text-muted: rgba(255, 255, 255, 0.6);
   --kp-ms-tooltip-bg: #2a2a2e;
 }
 
@@ -47,9 +42,9 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-family: -apple-system, BlinkMacSystemFont, "Graphik Kinopoisk LC", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  font-size: 15px;
-  line-height: 1;
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 18px;
   user-select: none;
   z-index: 10;
   vertical-align: middle;
@@ -62,31 +57,38 @@
   to { opacity: 1; transform: scale(1); }
 }
 
-/* Базовый интерактивный стиль для кнопок */
+/* Базовый стиль кнопок Кинопоиска (из style_button__Hk804 + style_buttonSize52__QXxO2) */
 .kp-ms-btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  height: var(--kp-ms-height);
-  padding: 0 20px;
-  border-radius: var(--kp-ms-radius);
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  outline: none;
-  border: 1px solid var(--kp-ms-border-subtle);
-  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-  text-decoration: none;
   box-sizing: border-box;
+  font-family: inherit;
+  font-weight: 600;
+  font-style: normal;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+  outline: none;
+  min-height: var(--kp-ms-height);
+  max-height: var(--kp-ms-height);
+  height: var(--kp-ms-height);
+  border-radius: var(--kp-ms-radius);
+  font-size: 16px;
+  line-height: 18px;
   white-space: nowrap;
+  transition: transform 0.2s ease, background 0.2s ease, background-color 0.2s ease;
 }
 
-/* Кнопка "Скачать" (серый цвет точь-в-точь как у "Буду смотреть" и "...") */
+/* Кнопка "Скачать" (серый цвет, точь-в-точь как "Буду смотреть" и "...") */
 .kp-ms-btn-download {
+  background: var(--kp-ms-bg-btn);
   background-color: var(--kp-ms-bg-btn);
   color: var(--kp-ms-text-primary);
-  border: 1px solid var(--kp-ms-border-subtle);
+  border: none;
+  padding: 0 22px;
+  gap: 8px;
 }
 
 .kp-ms-btn-download .kp-ms-icon {
@@ -95,52 +97,60 @@
 }
 
 .kp-ms-btn-download:hover {
+  background: var(--kp-ms-bg-btn-hover);
   background-color: var(--kp-ms-bg-btn-hover);
   color: var(--kp-ms-text-primary);
+  transform: scale(1.02);
 }
 
 .kp-ms-btn-download:active {
+  background: var(--kp-ms-bg-btn-active);
   background-color: var(--kp-ms-bg-btn-active);
   transform: scale(0.98);
 }
 
-/* Кнопка "Смотреть в Jellyfin" (фирменный стиль главной кнопки воспроизведения) */
+/* Кнопка "Смотреть в Jellyfin" (канонические пропорции, градиент и отступы Кинопоиска) */
 .kp-ms-btn-watch {
   background: var(--kp-ms-primary-grad);
   color: #ffffff !important;
   font-weight: 600;
   border: none;
-  box-shadow: var(--kp-ms-primary-shadow);
-  gap: 10px;
+  padding: 0 26px 0 22px;
+  gap: 8px;
 }
 
 .kp-ms-btn-watch:hover {
   background: var(--kp-ms-primary-hover);
-  box-shadow: 0 6px 20px rgba(255, 85, 0, 0.4);
+  transform: scale(1.02);
 }
 
 .kp-ms-btn-watch:active {
   transform: scale(0.98);
 }
 
-/* Бейджи статусов (все на едином сером фоне, как нативные кнопки) */
+/* Бейджи статусов (все на едином сером фоне Кинопоиска) */
 .kp-ms-badge {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  height: var(--kp-ms-height);
-  padding: 0 16px;
-  border-radius: var(--kp-ms-radius);
-  font-size: 14px;
-  font-weight: 500;
   box-sizing: border-box;
+  font-family: inherit;
+  font-weight: 600;
+  gap: 8px;
+  min-height: var(--kp-ms-height);
+  max-height: var(--kp-ms-height);
+  height: var(--kp-ms-height);
+  padding: 0 20px;
+  border-radius: var(--kp-ms-radius);
+  font-size: 15px;
+  line-height: 18px;
   white-space: nowrap;
+  border: none;
 }
 
-/* Статус: Скачан (серый фон точь-в-точь как у "Буду смотреть" и "...") */
+/* Статус: Скачан (серый фон точь-в-точь как "Буду смотреть" и "...") */
 .kp-ms-badge-available {
+  background: var(--kp-ms-bg-btn);
   background-color: var(--kp-ms-bg-btn);
-  border: 1px solid var(--kp-ms-border-subtle);
   color: var(--kp-ms-text-primary);
 }
 
@@ -150,8 +160,8 @@
 
 /* Статус: Запрошен (серый фон + янтарная иконка) */
 .kp-ms-badge-requested {
+  background: var(--kp-ms-bg-btn);
   background-color: var(--kp-ms-bg-btn);
-  border: 1px solid var(--kp-ms-border-subtle);
   color: var(--kp-ms-text-primary);
 }
 
@@ -161,8 +171,8 @@
 
 /* Статус: Качается (серый фон + прогресс бар) */
 .kp-ms-badge-downloading {
+  background: var(--kp-ms-bg-btn);
   background-color: var(--kp-ms-bg-btn);
-  border: 1px solid var(--kp-ms-border-subtle);
   color: var(--kp-ms-text-primary);
   position: relative;
   overflow: hidden;
@@ -183,15 +193,14 @@
 
 /* Статус: Загрузка */
 .kp-ms-badge-loading {
+  background: var(--kp-ms-bg-btn);
   background-color: var(--kp-ms-bg-btn);
-  border: 1px solid var(--kp-ms-border-subtle);
   color: var(--kp-ms-text-muted);
 }
 
 /* Статус: Предупреждение / Ошибка */
 .kp-ms-badge-warning {
   background-color: rgba(255, 71, 87, 0.12);
-  border: 1px solid rgba(255, 71, 87, 0.25);
   color: #ff4757;
   cursor: pointer;
 }
@@ -204,18 +213,30 @@
   background-color: rgba(255, 71, 87, 0.18);
 }
 
-/* Иконки */
+/* Базовые иконки */
 .kp-ms-icon {
   width: 20px;
   height: 20px;
   flex-shrink: 0;
+  vertical-align: middle;
 }
 
-/* Крупный выразительный треугольник Play, идентичный Кинопоиску */
+/* Канонический треугольник Play Кинопоиска 24x24 (с острыми углами) */
 .kp-ms-icon-play {
-  width: 20px;
-  height: 20px;
-  fill: #ffffff;
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+  max-width: 24px !important;
+  max-height: 24px !important;
+  flex: 0 0 24px !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+  margin: 0 !important;
+}
+
+.kp-ms-icon-play path {
+  fill: #ffffff !important;
 }
 
 .kp-ms-spinner {
