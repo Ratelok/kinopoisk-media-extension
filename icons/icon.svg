@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1f1f24"/>
+      <stop offset="100%" stop-color="#121214"/>
+    </linearGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff5500"/>
+      <stop offset="100%" stop-color="#ff7700"/>
+    </linearGradient>
+    <linearGradient id="jfGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00a4dc"/>
+      <stop offset="100%" stop-color="#aa5cc3"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.3" flood-color="#000000"/>
+    </filter>
+  </defs>
+
+  <!-- Background rounded card -->
+  <rect x="8" y="8" width="112" height="112" rx="26" fill="url(#bgGrad)" stroke="rgba(255,255,255,0.12)" stroke-width="2" filter="url(#shadow)"/>
+
+  <!-- Media Stack Symbol: Download Cloud & Play Arrow -->
+  <path d="M96 66c0-10.5-8-19.1-18.4-19.9C75.2 34.6 63.8 26 50.5 26 35.3 26 23 38.3 23 53.5c0 1.2.1 2.3.2 3.4C13.4 58.6 6 67.4 6 78c0 12.2 9.8 22 22 22h68c11 0 20-9 20-20 0-7.3-4-13.7-10-14z" fill="url(#primaryGrad)" opacity="0.15" transform="translate(6, 2) scale(0.9)"/>
+
+  <!-- Play / Media Accent -->
+  <path d="M52 44 L86 64 L52 84 Z" fill="url(#primaryGrad)"/>
+
+  <!-- Download indicator arrow -->
+  <path d="M64 88 L76 76 H68 V64 H60 V76 H52 Z" fill="url(#jfGrad)" opacity="0.9" transform="translate(0, 10) scale(0.85) translate(11, -10)"/>
+
+  <!-- Subtle glow ring -->
+  <circle cx="64" cy="64" r="44" fill="none" stroke="url(#jfGrad)" stroke-width="2.5" stroke-dasharray="8 6" opacity="0.4"/>
+</svg>

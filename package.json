@@ -1,0 +1,20 @@
+{
+  "name": "kinopoisk-mediastack",
+  "version": "1.0.0",
+  "description": "Firefox extension integrating Kinopoisk with Jellyseerr and Jellyfin",
+  "scripts": {
+    "test": "node test/run-tests.js",
+    "package": "mkdir -p dist && zip -r dist/kinopoisk-mediastack.zip manifest.json background content options popup icons -x \"*.DS_Store\"",
+    "build:xpi": "mkdir -p dist && zip -r dist/kinopoisk-mediastack.xpi manifest.json background content options popup icons -x \"*.DS_Store\""
+  },
+  "keywords": [
+    "firefox",
+    "webextension",
+    "kinopoisk",
+    "jellyfin",
+    "jellyseerr",
+    "overseerr"
+  ],
+  "author": "ratelok",
+  "license": "MIT"
+}

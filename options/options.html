@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Настройки Kinopoisk MediaStack</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo-wrapper">
+        <svg class="header-logo" viewBox="0 0 24 24">
+          <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Kinopoisk MediaStack</h1>
+        <p class="subtitle">Интеграция Кинопоиска с Jellyseerr и Jellyfin для вашего домашнего сервера</p>
+      </div>
+    </header>
+
+    <div id="toast" class="toast"></div>
+
+    <main class="content">
+      <!-- Jellyseerr Settings -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-icon js-icon">
+            <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z"/></svg>
+          </div>
+          <div>
+            <h2>Подключение к Jellyseerr / Overseerr</h2>
+            <p>Сервис управления запросами и отслеживания загрузок</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="jellyseerrUrl">URL сервера Jellyseerr</label>
+          <input type="url" id="jellyseerrUrl" placeholder="https://requests.example.com или http://192.168.1.100:5055" autocomplete="off" spellcheck="false">
+          <small class="hint">Внешний домен или локальный адрес инстанса Jellyseerr</small>
+        </div>
+
+        <div class="form-group">
+          <label for="jellyseerrApiKey">API Ключ Jellyseerr</label>
+          <div class="input-password-wrapper">
+            <input type="password" id="jellyseerrApiKey" placeholder="Вставьте ваш API Key из настроек Jellyseerr" autocomplete="off" spellcheck="false">
+            <button type="button" class="btn-toggle-eye" id="toggleJsKey" title="Показать/скрыть ключ">👁️</button>
+          </div>
+          <small class="hint">Где найти: <em>Настройки (Settings) → Общие (General) → API Key</em></small>
+        </div>
+
+        <div class="card-footer">
+          <button type="button" class="btn btn-secondary" id="btnTestJellyseerr">Проверить Jellyseerr</button>
+          <div id="statusJellyseerr" class="connection-status"></div>
+        </div>
+      </section>
+
+      <!-- Jellyfin Settings -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-icon jf-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          </div>
+          <div>
+            <h2>Подключение к Jellyfin</h2>
+            <p>Медиасервер для просмотра скачанных фильмов и сериалов</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="jellyfinUrl">URL сервера Jellyfin</label>
+          <input type="url" id="jellyfinUrl" placeholder="https://jellyfin.example.com или http://192.168.1.100:8096" autocomplete="off" spellcheck="false">
+          <small class="hint">URL веб-интерфейса Jellyfin для открытия кнопки «Смотреть»</small>
+        </div>
+
+        <div class="form-group">
+          <label for="jellyfinApiKey">API Ключ Jellyfin (Опционально)</label>
+          <div class="input-password-wrapper">
+            <input type="password" id="jellyfinApiKey" placeholder="Необязательно (для прямого поиска в библиотеке)" autocomplete="off" spellcheck="false">
+            <button type="button" class="btn-toggle-eye" id="toggleJfKey" title="Показать/скрыть ключ">👁️</button>
+          </div>
+          <small class="hint">Позволяет найти ID фильма напрямую, если он еще не синхронизирован в Jellyseerr</small>
+        </div>
+
+        <div class="card-footer">
+          <button type="button" class="btn btn-secondary" id="btnTestJellyfin">Проверить Jellyfin</button>
+          <div id="statusJellyfin" class="connection-status"></div>
+        </div>
+      </section>
+
+      <!-- Additional Settings -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-icon opt-icon">
+            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+          </div>
+          <div>
+            <h2>Параметры работы и производительности</h2>
+            <p>Оптимизация сетевых запросов и поведение виджета</p>
+          </div>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label class="checkbox-container">
+            <input type="checkbox" id="autoCheck" checked>
+            <span class="checkmark"></span>
+            <span class="checkbox-label">Автоматически проверять статус фильма при открытии страницы Кинопоиска</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label for="cacheTtlSec">Время кэширования статуса (в секундах)</label>
+          <input type="number" id="cacheTtlSec" min="10" max="600" value="60">
+          <small class="hint">Предотвращает повторные запросы к серверу при навигации и скролле (рекомендуется 60 сек)</small>
+        </div>
+      </section>
+
+      <!-- Save bar -->
+      <div class="actions-bar">
+        <button type="button" class="btn btn-primary" id="btnSave">Сохранить настройки</button>
+      </div>
+    </main>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>
