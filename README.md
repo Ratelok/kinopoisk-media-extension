@@ -3,12 +3,12 @@
 </p>
 
 <p align="center">
+  <a href="dist/kinopoisk-mediastack.xpi?raw=true"><img src="https://img.shields.io/badge/Mozilla_AMO-Подписано_Mozilla-2e7d32?style=for-the-badge&logo=firefox-browser&logoColor=white" alt="Подписано Mozilla"></a>
   <a href="https://github.com"><img src="https://img.shields.io/badge/Firefox-Extension-FF7139?style=for-the-badge&logo=firefox-browser&logoColor=white" alt="Firefox Extension"></a>
   <a href="https://github.com"><img src="https://img.shields.io/badge/Manifest-V3-10B981?style=for-the-badge&logo=webextensions&logoColor=white" alt="Manifest V3"></a>
   <a href="https://github.com"><img src="https://img.shields.io/badge/Jellyseerr-Overseerr-6366F1?style=for-the-badge&logo=jellyfin&logoColor=white" alt="Jellyseerr"></a>
   <a href="https://github.com"><img src="https://img.shields.io/badge/Jellyfin-Player-00A4DC?style=for-the-badge&logo=jellyfin&logoColor=white" alt="Jellyfin"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License MIT"></a>
-  <a href="https://github.com"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge" alt="PRs Welcome"></a>
 </p>
 
 <p align="center">
@@ -18,6 +18,14 @@
 <p align="center">
   <i>Запрашивайте скачивание в Jellyseerr в один клик, следите за процентом загрузки торрента в реальном времени и открывайте готовые фильмы прямо в плеере Jellyfin.</i>
 </p>
+
+> [!IMPORTANT]
+> ### ⚡ Быстрая установка в Firefox (за 5 секунд)
+> 1. Скачайте подписанный файл дополнения: [**`kinopoisk-mediastack.xpi`**](dist/kinopoisk-mediastack.xpi?raw=true) (или со страницы [**Releases**](../../releases)).
+> 2. **Перетащите скачанный `.xpi` мышкой прямо в открытое окно Firefox.**
+> 3. Нажмите **«Добавить»** во всплывающем окне подтверждения.
+> 
+> *Файл расширения официально подписан Mozilla (AMO) — работает во всех стандартных версиях Firefox и остаётся навсегда (не пропадает после перезапуска браузера).*
 
 ---
 
@@ -69,23 +77,24 @@ flowchart LR
 
 ## 🚀 Установка
 
-### Вариант 1: Установка из GitHub Releases (Рекомендуемый)
+### Вариант 1: Установка подписанного файла (Рекомендуемый)
 
-1. Перейдите в раздел [**Releases**](../../releases) репозитория.
-2. Скачайте свежий файл **`kinopoisk-mediastack.xpi`** (или `.zip`).
-3. В **Firefox Developer Edition** или **Nightly**:
-   - Перетащите файл `.xpi` в окно браузера и подтвердите установку.
-   *(Для обычной версии Firefox: в `about:config` установите `xpinstall.signatures.required` в `false`)*.
+Расширение прошло верификацию и подписано Mozilla (AMO), поэтому поддерживается любой версией Firefox (Stable, ESR, Developer Edition, Nightly):
 
-### Вариант 2: Временная загрузка через `about:debugging` (Для всех версий Firefox)
+1. Скачайте файл дополнения: [**`kinopoisk-mediastack.xpi`**](dist/kinopoisk-mediastack.xpi?raw=true) (или со страницы [**Releases**](../../releases)).
+2. **Перетащите скачанный `.xpi` мышкой в любое открытое окно Firefox** (или нажмите `Ctrl+O` в браузере и выберите скачанный файл).
+3. Во всплывающем окне подтверждения нажмите **«Добавить»**.
+4. Расширение установлено навсегда!
 
-1. Скачайте и распакуйте репозиторий (или скачайте `dist/kinopoisk-mediastack.zip`).
+### Вариант 2: Для разработчиков (через `about:debugging`)
+
+1. Клонируйте репозиторий или скачайте архив с кодом.
 2. В браузере Firefox откройте служебную вкладку:
    ```text
    about:debugging#/runtime/this-firefox
    ```
 3. Нажмите **«Загрузить временное дополнение…»** (*Load Temporary Add-on…*).
-4. Выберите файл **`manifest.json`** из распакованной папки.
+4. Выберите файл **`manifest.json`** из папки проекта.
 5. Расширение мгновенно активируется в браузере.
 
 ---

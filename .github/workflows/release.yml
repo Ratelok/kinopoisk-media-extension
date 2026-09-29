@@ -28,7 +28,11 @@ jobs:
       - name: Build artifacts (.zip and .xpi)
         run: |
           npm run package
-          npm run build:xpi
+          if unzip -l dist/kinopoisk-mediastack.xpi 2>/dev/null | grep -q 'META-INF/mozilla.rsa'; then
+            echo "Preserving existing Mozilla-signed .xpi binary"
+          else
+            npm run build:xpi
+          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
