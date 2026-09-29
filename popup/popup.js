@@ -70,20 +70,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function renderNotKinopoisk() {
-    movieCard.innerHTML = `
-      <div class="not-kinopoisk-msg">
-        Откройте страницу фильма или сериала на <strong>Кинопоиске</strong> для управления загрузкой и просмотром.
-      </div>
-    `;
+    const msg = document.createElement('div');
+    msg.className = 'not-kinopoisk-msg';
+    const strong = document.createElement('strong');
+    strong.textContent = 'Кинопоиске';
+    msg.append('Откройте страницу фильма или сериала на ', strong, ' для управления загрузкой и просмотром.');
+    movieCard.replaceChildren(msg);
   }
 
   function renderMovieStatus(res, tabId) {
     if (!res || res.status === 'NOT_CONFIGURED') {
-      movieCard.innerHTML = `
-        <div class="not-kinopoisk-msg">
-          Медиастек еще не настроен. Нажмите иконку шестеренки вверху для ввода адреса сервера и ключа.
-        </div>
-      `;
+      const msg = document.createElement('div');
+      msg.className = 'not-kinopoisk-msg';
+      msg.textContent = 'Медиастек еще не настроен. Нажмите иконку шестеренки вверху для ввода адреса сервера и ключа.';
+      movieCard.replaceChildren(msg);
       return;
     }
 
@@ -92,43 +92,54 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let badgeClass = 'status-not_requested';
     let badgeText = 'Не в медиатеке';
-    let actionBtnHtml = '';
 
     if (res.status === 'AVAILABLE') {
       badgeClass = 'status-available';
       badgeText = '✓ В медиатеке Jellyfin';
-      if (res.jellyfinUrl) {
-        actionBtnHtml = `
-          <a class="card-action-btn btn-watch" href="${res.jellyfinUrl}" target="_blank">
-            ▶ Смотреть в Jellyfin
-          </a>
-        `;
-      }
     } else if (res.status === 'DOWNLOADING') {
       badgeClass = 'status-downloading';
       badgeText = `⏬ Качается (${res.progress || 0}%)`;
     } else if (res.status === 'REQUESTED') {
       badgeClass = 'status-requested';
       badgeText = '🕒 Запрошен';
-    } else {
-      actionBtnHtml = `
-        <button class="card-action-btn btn-download" id="popupBtnDownload">
-          📥 Скачать в медиастек
-        </button>
-      `;
     }
 
-    movieCard.innerHTML = `
-      <div class="movie-info">
-        <div class="movie-title">${title}</div>
-        ${orig ? `<div class="movie-orig-title">${orig}</div>` : ''}
-      </div>
-      <div class="status-badge ${badgeClass}">${badgeText}</div>
-      ${actionBtnHtml}
-    `;
+    const movieInfo = document.createElement('div');
+    movieInfo.className = 'movie-info';
 
-    const downloadBtn = movieCard.querySelector('#popupBtnDownload');
-    if (downloadBtn) {
+    const movieTitle = document.createElement('div');
+    movieTitle.className = 'movie-title';
+    movieTitle.textContent = title;
+    movieInfo.appendChild(movieTitle);
+
+    if (orig) {
+      const movieOrigTitle = document.createElement('div');
+      movieOrigTitle.className = 'movie-orig-title';
+      movieOrigTitle.textContent = orig;
+      movieInfo.appendChild(movieOrigTitle);
+    }
+
+    const badge = document.createElement('div');
+    badge.className = `status-badge ${badgeClass}`;
+    badge.textContent = badgeText;
+
+    const elements = [movieInfo, badge];
+
+    if (res.status === 'AVAILABLE') {
+      if (res.jellyfinUrl) {
+        const watchLink = document.createElement('a');
+        watchLink.className = 'card-action-btn btn-watch';
+        watchLink.href = res.jellyfinUrl;
+        watchLink.target = '_blank';
+        watchLink.rel = 'noopener noreferrer';
+        watchLink.textContent = '▶ Смотреть в Jellyfin';
+        elements.push(watchLink);
+      }
+    } else if (res.status !== 'DOWNLOADING' && res.status !== 'REQUESTED') {
+      const downloadBtn = document.createElement('button');
+      downloadBtn.className = 'card-action-btn btn-download';
+      downloadBtn.id = 'popupBtnDownload';
+      downloadBtn.textContent = '📥 Скачать в медиастек';
       downloadBtn.addEventListener('click', async () => {
         downloadBtn.disabled = true;
         downloadBtn.textContent = 'Отправка...';
@@ -138,6 +149,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         window.close();
       });
+      elements.push(downloadBtn);
     }
+
+    movieCard.replaceChildren(...elements);
   }
 });
