@@ -26,7 +26,10 @@
    */
   async function getSettings() {
     return new Promise((resolve) => {
-      const storage = extApi.storage.sync || extApi.storage.local;
+      const storage = extApi.storage?.local || extApi.storage?.sync;
+      if (!storage) {
+        return resolve(DEFAULT_SETTINGS);
+      }
       storage.get(DEFAULT_SETTINGS, (items) => {
         resolve({ ...DEFAULT_SETTINGS, ...(items || {}) });
       });
@@ -38,7 +41,10 @@
    */
   async function saveSettings(newSettings) {
     return new Promise((resolve, reject) => {
-      const storage = extApi.storage.sync || extApi.storage.local;
+      const storage = extApi.storage?.local || extApi.storage?.sync;
+      if (!storage) {
+        return reject(new Error('Storage API недоступно'));
+      }
       storage.set(newSettings, () => {
         if (extApi.runtime.lastError) {
           return reject(extApi.runtime.lastError);
@@ -182,7 +188,6 @@
       let mediaType = meta.mediaType || (meta.type === 'tv' ? 'tv' : 'movie');
 
       if (!tmdbId) {
-        // Если ID еще не найден, сначала ищем
         const found = await globalThis.JellyseerrApi.searchMedia(
           settings.jellyseerrUrl,
           settings.jellyseerrApiKey,
@@ -258,13 +263,18 @@
       const { service, url, apiKey } = request;
       if (service === 'jellyseerr') {
         globalThis.JellyseerrApi.testConnection(url, apiKey)
-          .then((res) => sendResponse(res));
+          .then((res) => sendResponse(res))
+          .catch((err) => sendResponse({ success: false, error: err.message }));
       } else if (service === 'jellyfin') {
         globalThis.JellyfinApi.testConnection(url, apiKey)
-          .then((res) => sendResponse(res));
+          .then((res) => sendResponse(res))
+          .catch((err) => sendResponse({ success: false, error: err.message }));
       } else {
         sendResponse({ success: false, error: 'Неизвестный сервис' });
       }
+      return true;
+    }
+
     if (action === 'OPEN_OPTIONS') {
       if (extApi.runtime.openOptionsPage) {
         extApi.runtime.openOptionsPage();

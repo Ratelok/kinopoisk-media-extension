@@ -5,6 +5,15 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const extApi = typeof browser !== 'undefined' ? browser : chrome;
 
+  const DEFAULT_SETTINGS = {
+    jellyseerrUrl: '',
+    jellyseerrApiKey: '',
+    jellyfinUrl: '',
+    jellyfinApiKey: '',
+    autoCheck: true,
+    cacheTtlSec: 60
+  };
+
   // Элементы формы
   const jellyseerrUrlInput = document.getElementById('jellyseerrUrl');
   const jellyseerrApiKeyInput = document.getElementById('jellyseerrApiKey');
@@ -46,15 +55,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     toast.className = `toast show ${type}`;
     setTimeout(() => {
       toast.className = 'toast';
-    }, 3500);
+    }, 4000);
   }
 
-  // Загрузка сохраненных настроек
-  try {
-    const settings = await new Promise((resolve) => {
-      extApi.runtime.sendMessage({ action: 'GET_SETTINGS' }, (res) => resolve(res || {}));
-    });
+  // Чтение настроек напрямую из storage
+  function getStorageArea() {
+    return (extApi && extApi.storage && extApi.storage.local) || (extApi && extApi.storage && extApi.storage.sync);
+  }
 
+  async function loadSettings() {
+    const storage = getStorageArea();
+    if (!storage) {
+      console.warn('Storage API unavailable');
+      return DEFAULT_SETTINGS;
+    }
+
+    return new Promise((resolve) => {
+      try {
+        storage.get(DEFAULT_SETTINGS, (items) => {
+          resolve({ ...DEFAULT_SETTINGS, ...(items || {}) });
+        });
+      } catch (err) {
+        console.error('Error getting settings:', err);
+        resolve(DEFAULT_SETTINGS);
+      }
+    });
+  }
+
+  // Загрузка сохраненных настроек в форму
+  try {
+    const settings = await loadSettings();
     if (settings) {
       jellyseerrUrlInput.value = settings.jellyseerrUrl || '';
       jellyseerrApiKeyInput.value = settings.jellyseerrApiKey || '';
@@ -65,10 +95,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   } catch (err) {
     console.error('Failed to load settings:', err);
-    showToast('Не удалось загрузить настройки', 'error');
   }
 
-  // Тест Jellyseerr
+  // Универсальный тест Jellyseerr (сначала прямой вызов, затем через background)
   btnTestJellyseerr.addEventListener('click', async () => {
     const url = jellyseerrUrlInput.value.trim();
     const apiKey = jellyseerrApiKeyInput.value.trim();
@@ -84,21 +113,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     btnTestJellyseerr.disabled = true;
 
     try {
-      const res = await new Promise((resolve) => {
-        extApi.runtime.sendMessage({
-          action: 'TEST_CONNECTION',
-          service: 'jellyseerr',
-          url,
-          apiKey
-        }, resolve);
-      });
+      let res = null;
+      // 1. Пробуем прямой вызов API
+      if (globalThis.JellyseerrApi && globalThis.JellyseerrApi.testConnection) {
+        try {
+          res = await globalThis.JellyseerrApi.testConnection(url, apiKey);
+        } catch (e) {
+          console.warn('Direct testConnection failed, trying background:', e);
+        }
+      }
+
+      // 2. Если прямой не сработал или нет модуля, пробуем background
+      if (!res || !res.success) {
+        res = await new Promise((resolve) => {
+          extApi.runtime.sendMessage({
+            action: 'TEST_CONNECTION',
+            service: 'jellyseerr',
+            url,
+            apiKey
+          }, (bgRes) => resolve(bgRes));
+        });
+      }
 
       if (res && res.success) {
         statusJellyseerr.className = 'connection-status ok';
         statusJellyseerr.textContent = `✓ Успешно подключено (версия: ${res.version})`;
       } else {
         statusJellyseerr.className = 'connection-status err';
-        statusJellyseerr.textContent = `✗ Ошибка: ${res?.error || 'Недоступен'}`;
+        statusJellyseerr.textContent = `✗ Ошибка: ${res?.error || 'Сервер недоступен'}`;
       }
     } catch (err) {
       statusJellyseerr.className = 'connection-status err';
@@ -108,7 +150,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Тест Jellyfin
+  // Универсальный тест Jellyfin (сначала прямой вызов, затем через background)
   btnTestJellyfin.addEventListener('click', async () => {
     const url = jellyfinUrlInput.value.trim();
     const apiKey = jellyfinApiKeyInput.value.trim();
@@ -124,21 +166,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     btnTestJellyfin.disabled = true;
 
     try {
-      const res = await new Promise((resolve) => {
-        extApi.runtime.sendMessage({
-          action: 'TEST_CONNECTION',
-          service: 'jellyfin',
-          url,
-          apiKey
-        }, resolve);
-      });
+      let res = null;
+      // 1. Пробуем прямой вызов API
+      if (globalThis.JellyfinApi && globalThis.JellyfinApi.testConnection) {
+        try {
+          res = await globalThis.JellyfinApi.testConnection(url, apiKey);
+        } catch (e) {
+          console.warn('Direct Jellyfin test failed, trying background:', e);
+        }
+      }
+
+      // 2. Fallback на background
+      if (!res || !res.success) {
+        res = await new Promise((resolve) => {
+          extApi.runtime.sendMessage({
+            action: 'TEST_CONNECTION',
+            service: 'jellyfin',
+            url,
+            apiKey
+          }, (bgRes) => resolve(bgRes));
+        });
+      }
 
       if (res && res.success) {
         statusJellyfin.className = 'connection-status ok';
         statusJellyfin.textContent = `✓ Успешно подключено (${res.serverName}, v${res.version})`;
       } else {
         statusJellyfin.className = 'connection-status err';
-        statusJellyfin.textContent = `✗ Ошибка: ${res?.error || 'Недоступен'}`;
+        statusJellyfin.textContent = `✗ Ошибка: ${res?.error || 'Сервер недоступен'}`;
       }
     } catch (err) {
       statusJellyfin.className = 'connection-status err';
@@ -148,7 +203,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Сохранение настроек
+  // Сохранение настроек (сохраняет напрямую в storage + уведомляет background)
   btnSave.addEventListener('click', async () => {
     const newSettings = {
       jellyseerrUrl: jellyseerrUrlInput.value.trim(),
@@ -160,24 +215,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     btnSave.disabled = true;
+    btnSave.textContent = 'Сохранение...';
 
     try {
-      const res = await new Promise((resolve) => {
-        extApi.runtime.sendMessage({
-          action: 'SAVE_SETTINGS',
-          settings: newSettings
-        }, resolve);
+      const storage = getStorageArea();
+      if (!storage) {
+        throw new Error('Storage API недоступно в данном браузере');
+      }
+
+      // 1. Сохраняем напрямую в storage
+      await new Promise((resolve, reject) => {
+        storage.set(newSettings, () => {
+          if (extApi.runtime.lastError) {
+            return reject(extApi.runtime.lastError);
+          }
+          resolve(true);
+        });
       });
 
-      if (res && res.success) {
-        showToast('Настройки успешно сохранены!', 'success');
-      } else {
-        showToast('Ошибка при сохранении настроек', 'error');
-      }
+      // 2. Уведомляем background script о сбросе кэша
+      try {
+        extApi.runtime.sendMessage({ action: 'SAVE_SETTINGS', settings: newSettings });
+      } catch (_) {}
+
+      showToast('✓ Настройки успешно сохранены!', 'success');
     } catch (err) {
-      showToast(`Ошибка: ${err.message}`, 'error');
+      console.error('Save error:', err);
+      showToast(`✗ Ошибка сохранения: ${err.message}`, 'error');
     } finally {
       btnSave.disabled = false;
+      btnSave.textContent = 'Сохранить настройки';
     }
   });
 });
