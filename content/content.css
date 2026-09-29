@@ -4,7 +4,7 @@
  */
 
 :root {
-  /* Базовые цвета для светлой темы Кинопоиска */
+  /* Базовые цвета для светлой темы Кинопоиска (по умолчанию) */
   --kp-ms-bg-btn: #f2f2f5;
   --kp-ms-bg-btn-hover: #e5e5ea;
   --kp-ms-bg-btn-active: #dcdce2;
@@ -12,17 +12,15 @@
   --kp-ms-text-muted: #666666;
   --kp-ms-border-subtle: rgba(0, 0, 0, 0.05);
 
-  /* Фирменный оранжевый Кинопоиска */
+  /* Фирменный оранжевый Кинопоиска для главной кнопки */
   --kp-ms-primary-grad: linear-gradient(90deg, #ff5500 0%, #ff6600 100%);
   --kp-ms-primary-hover: linear-gradient(90deg, #ff6600 0%, #ff7711 100%);
   --kp-ms-primary-shadow: 0 4px 16px rgba(255, 85, 0, 0.28);
 
-  /* Акценты */
+  /* Акценты для иконок */
   --kp-ms-success-icon: #10b981;
-  --kp-ms-info-bg: #e8f4fd;
-  --kp-ms-info-text: #0284c7;
-  --kp-ms-warning-bg: #fff8e6;
-  --kp-ms-warning-text: #b45309;
+  --kp-ms-info-icon: #0284c7;
+  --kp-ms-warning-icon: #f59e0b;
 
   --kp-ms-tooltip-bg: #1c1c1f;
   --kp-ms-tooltip-text: #ffffff;
@@ -40,6 +38,8 @@
   --kp-ms-text-muted: rgba(255, 255, 255, 0.7);
   --kp-ms-border-subtle: rgba(255, 255, 255, 0.1);
   --kp-ms-success-icon: #2ed573;
+  --kp-ms-info-icon: #38bdf8;
+  --kp-ms-warning-icon: #ffab00;
   --kp-ms-tooltip-bg: #2a2a2e;
 }
 
@@ -82,7 +82,7 @@
   white-space: nowrap;
 }
 
-/* Кнопка "Скачать" (стиль вторичной кнопки Кинопоиска) */
+/* Кнопка "Скачать" (серый цвет точь-в-точь как у "Буду смотреть" и "...") */
 .kp-ms-btn-download {
   background-color: var(--kp-ms-bg-btn);
   color: var(--kp-ms-text-primary);
@@ -90,7 +90,8 @@
 }
 
 .kp-ms-btn-download .kp-ms-icon {
-  fill: #ff5500; /* Фирменная оранжевая иконка */
+  fill: currentColor;
+  opacity: 0.9;
 }
 
 .kp-ms-btn-download:hover {
@@ -103,17 +104,14 @@
   transform: scale(0.98);
 }
 
-/* Кнопка "Смотреть в Jellyfin" (фирменный стиль главной кнопки Кинопоиска) */
+/* Кнопка "Смотреть в Jellyfin" (фирменный стиль главной кнопки воспроизведения) */
 .kp-ms-btn-watch {
   background: var(--kp-ms-primary-grad);
   color: #ffffff !important;
   font-weight: 600;
   border: none;
   box-shadow: var(--kp-ms-primary-shadow);
-}
-
-.kp-ms-btn-watch .kp-ms-icon {
-  fill: #ffffff;
+  gap: 10px;
 }
 
 .kp-ms-btn-watch:hover {
@@ -125,7 +123,7 @@
   transform: scale(0.98);
 }
 
-/* Бейджи статусов */
+/* Бейджи статусов (все на едином сером фоне, как нативные кнопки) */
 .kp-ms-badge {
   display: inline-flex;
   align-items: center;
@@ -150,28 +148,28 @@
   fill: var(--kp-ms-success-icon);
 }
 
-/* Статус: Запрошен */
+/* Статус: Запрошен (серый фон + янтарная иконка) */
 .kp-ms-badge-requested {
-  background-color: var(--kp-ms-warning-bg);
-  border: 1px solid rgba(180, 83, 9, 0.25);
-  color: var(--kp-ms-warning-text);
+  background-color: var(--kp-ms-bg-btn);
+  border: 1px solid var(--kp-ms-border-subtle);
+  color: var(--kp-ms-text-primary);
 }
 
 .kp-ms-badge-requested .kp-ms-icon {
-  fill: var(--kp-ms-warning-text);
+  fill: var(--kp-ms-warning-icon);
 }
 
-/* Статус: Качается */
+/* Статус: Качается (серый фон + прогресс бар) */
 .kp-ms-badge-downloading {
-  background-color: var(--kp-ms-info-bg);
-  border: 1px solid rgba(2, 132, 199, 0.25);
-  color: var(--kp-ms-info-text);
+  background-color: var(--kp-ms-bg-btn);
+  border: 1px solid var(--kp-ms-border-subtle);
+  color: var(--kp-ms-text-primary);
   position: relative;
   overflow: hidden;
 }
 
 .kp-ms-badge-downloading .kp-ms-icon {
-  fill: var(--kp-ms-info-text);
+  fill: var(--kp-ms-info-icon);
 }
 
 .kp-ms-progress-bar {
@@ -213,6 +211,13 @@
   flex-shrink: 0;
 }
 
+/* Крупный выразительный треугольник Play, идентичный Кинопоиску */
+.kp-ms-icon-play {
+  width: 20px;
+  height: 20px;
+  fill: #ffffff;
+}
+
 .kp-ms-spinner {
   width: 16px;
   height: 16px;
@@ -220,6 +225,11 @@
   border-top-color: currentColor;
   border-radius: 50%;
   animation: kp-ms-spin 0.7s linear infinite;
+}
+
+.kp-ms-theme-dark .kp-ms-spinner {
+  border-color: rgba(255, 255, 255, 0.2);
+  border-top-color: #ffffff;
 }
 
 @keyframes kp-ms-spin {
