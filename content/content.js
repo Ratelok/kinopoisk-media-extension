@@ -289,9 +289,11 @@
     root.innerHTML = `
       <div class="kp-ms-badge kp-ms-badge-loading">
         <div class="kp-ms-spinner"></div>
-        <span>${text}</span>
+        <span class="kp-ms-text"></span>
       </div>
     `;
+    const label = root.querySelector('.kp-ms-text');
+    if (label) label.textContent = text;
   }
 
   /**
@@ -305,11 +307,23 @@
       <div class="kp-ms-tooltip-container">
         <div class="kp-ms-badge kp-ms-badge-warning" id="kp-ms-warning-btn">
           ${ICONS.warning}
-          <span>${text}</span>
+          <span class="kp-ms-text"></span>
         </div>
-        ${tooltip ? `<div class="kp-ms-tooltip">${tooltip}</div>` : ''}
+        <div class="kp-ms-tooltip"></div>
       </div>
     `;
+
+    const label = root.querySelector('.kp-ms-text');
+    if (label) label.textContent = text;
+
+    const tip = root.querySelector('.kp-ms-tooltip');
+    if (tip) {
+      if (tooltip) {
+        tip.textContent = tooltip;
+      } else {
+        tip.remove();
+      }
+    }
 
     if (action) {
       const btn = root.querySelector('#kp-ms-warning-btn');
@@ -387,12 +401,18 @@
       <div class="kp-ms-tooltip-container">
         <div class="kp-ms-badge kp-ms-badge-downloading">
           <div class="kp-ms-spinner"></div>
-          <span>Качается${percentText}</span>
-          <div class="kp-ms-progress-bar" style="width: ${progressWidth}%"></div>
+          <span class="kp-ms-text"></span>
+          <div class="kp-ms-progress-bar"></div>
         </div>
         <div class="kp-ms-tooltip">Тайтл активно загружается торрент-клиентом</div>
       </div>
     `;
+
+    const label = root.querySelector('.kp-ms-text');
+    if (label) label.textContent = `Качается${percentText}`;
+
+    const bar = root.querySelector('.kp-ms-progress-bar');
+    if (bar) bar.style.width = `${progressWidth}%`;
   }
 
   /**
@@ -402,23 +422,25 @@
     const root = getOrCreateWidget(container);
     if (!root) return;
 
-    let watchBtnHtml = '';
-    if (jellyfinUrl) {
-      watchBtnHtml = `
-        <a class="kp-ms-btn kp-ms-btn-watch" href="${jellyfinUrl}" target="_blank" rel="noopener noreferrer" title="Смотреть прямо в Jellyfin">
-          ${ICONS.play}
-          <span>Смотреть в Jellyfin</span>
-        </a>
-      `;
-    }
-
     root.innerHTML = `
-      ${watchBtnHtml}
+      <a class="kp-ms-btn kp-ms-btn-watch" id="kp-ms-watch-link" target="_blank" rel="noopener noreferrer" title="Смотреть прямо в Jellyfin">
+        ${ICONS.play}
+        <span>Смотреть в Jellyfin</span>
+      </a>
       <div class="kp-ms-badge kp-ms-badge-available" title="Фильм находится в вашей домашней медиатеке">
         ${ICONS.check}
         <span>Скачан</span>
       </div>
     `;
+
+    const link = root.querySelector('#kp-ms-watch-link');
+    if (link) {
+      if (jellyfinUrl) {
+        link.href = jellyfinUrl;
+      } else {
+        link.remove();
+      }
+    }
   }
 
   /**
