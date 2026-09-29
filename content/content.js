@@ -19,18 +19,55 @@
   };
 
   /**
-   * Определение темы (Светлая или Тёмная)
+   * Надёжное определение темы страницы (Светлая или Тёмная)
+   * Учитывает классы нативных кнопок Кинопоиска (Light / Dark) и заголовка h1.
    */
-  function detectTheme() {
+  function detectTheme(container) {
     try {
-      const bg = window.getComputedStyle(document.body).backgroundColor;
-      const rgb = bg.match(/\d+/g);
-      if (rgb && rgb.length >= 3) {
-        const brightness = (parseInt(rgb[0], 10) * 299 + parseInt(rgb[1], 10) * 587 + parseInt(rgb[2], 10) * 114) / 1000;
-        return brightness < 128 ? 'dark' : 'light';
+      // 1. По нативным кнопкам в контейнере действий
+      if (container) {
+        const nativeBtns = container.querySelectorAll('button:not(#kp-ms-download-btn):not(#kp-ms-warning-btn)');
+        for (const btn of nativeBtns) {
+          const cls = btn.className || '';
+          if (cls.includes('Light') || cls.includes('light')) return 'light';
+          if (cls.includes('Dark') || cls.includes('dark')) return 'dark';
+        }
+      }
+
+      // 2. По классу или цвету заголовка фильма (h1)
+      const h1 = document.querySelector('h1');
+      if (h1) {
+        const cls = h1.className || '';
+        if (cls.includes('InLight') || cls.includes('Light') || cls.includes('light')) return 'light';
+        if (cls.includes('InDark') || cls.includes('Dark') || cls.includes('dark')) return 'dark';
+
+        const colorComp = window.getComputedStyle(h1).color;
+        const rgb = colorComp ? colorComp.match(/\d+/g) : null;
+        if (rgb && rgb.length >= 3) {
+          const brightness = (parseInt(rgb[0], 10) * 299 + parseInt(rgb[1], 10) * 587 + parseInt(rgb[2], 10) * 114) / 1000;
+          return brightness > 150 ? 'dark' : 'light';
+        }
+      }
+
+      // 3. По цвету фона контейнера (только если непрозрачный)
+      let el = container;
+      while (el && el !== document.body) {
+        const bg = window.getComputedStyle(el).backgroundColor;
+        if (bg && bg !== 'transparent' && !bg.startsWith('rgba(0, 0, 0, 0)')) {
+          const rgb = bg.match(/\d+/g);
+          if (rgb && rgb.length >= 3) {
+            const a = rgb[3] !== undefined ? parseFloat(rgb[3]) : 1;
+            if (a > 0.5) {
+              const brightness = (parseInt(rgb[0], 10) * 299 + parseInt(rgb[1], 10) * 587 + parseInt(rgb[2], 10) * 114) / 1000;
+              return brightness < 128 ? 'dark' : 'light';
+            }
+          }
+        }
+        el = el.parentElement;
       }
     } catch (_) {}
-    return 'light';
+
+    return 'light'; // По умолчанию на Кинопоиске — светлая тема
   }
 
   /**
@@ -39,7 +76,7 @@
   function syncNativeGeometry(root, container) {
     if (!root || !container) return;
     try {
-      const buttons = container.querySelectorAll('button');
+      const buttons = container.querySelectorAll('button:not(#kp-ms-download-btn):not(#kp-ms-warning-btn)');
       let targetBtn = null;
 
       // Ищем вторичную серую кнопку ("Буду смотреть" или "..."), не главную оранжевую
@@ -52,12 +89,12 @@
       }
 
       if (!targetBtn && buttons.length > 0) {
-        targetBtn = buttons[buttons.length - 1];
+        targetBtn = buttons[0];
       }
 
       if (targetBtn) {
         const comp = window.getComputedStyle(targetBtn);
-        if (comp.backgroundColor && comp.backgroundColor !== 'transparent' && comp.backgroundColor !== 'rgba(0, 0, 0, 0)') {
+        if (comp.backgroundColor && comp.backgroundColor !== 'transparent' && !comp.backgroundColor.startsWith('rgba(0, 0, 0, 0)')) {
           root.style.setProperty('--kp-ms-bg-btn', comp.backgroundColor);
         }
         if (comp.color) {
@@ -218,7 +255,7 @@
   function getOrCreateWidget(container) {
     let root = document.getElementById('kp-ms-widget');
     if (root) {
-      applyTheme(root);
+      applyTheme(root, container);
       if (container) syncNativeGeometry(root, container);
       return root;
     }
@@ -229,15 +266,15 @@
     root.id = 'kp-ms-widget';
     root.className = 'kp-ms-root';
 
-    applyTheme(root);
+    applyTheme(root, container);
     syncNativeGeometry(root, container);
 
     container.appendChild(root);
     return root;
   }
 
-  function applyTheme(root) {
-    const theme = detectTheme();
+  function applyTheme(root, container) {
+    const theme = detectTheme(container);
     root.classList.remove('kp-ms-theme-light', 'kp-ms-theme-dark');
     root.classList.add(theme === 'dark' ? 'kp-ms-theme-dark' : 'kp-ms-theme-light');
   }

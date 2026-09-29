@@ -36,6 +36,18 @@
   --kp-ms-text-primary: #ffffff;
   --kp-ms-text-muted: rgba(255, 255, 255, 0.6);
   --kp-ms-tooltip-bg: #2a2a2e;
+  --kp-ms-tooltip-text: #ffffff;
+}
+
+/* При светлой теме Кинопоиска (из style_buttonLight__2FcOR) */
+.kp-ms-theme-light {
+  --kp-ms-bg-btn: rgba(0, 0, 0, 0.05);
+  --kp-ms-bg-btn-hover: rgba(0, 0, 0, 0.1);
+  --kp-ms-bg-btn-active: rgba(0, 0, 0, 0.15);
+  --kp-ms-text-primary: #000000;
+  --kp-ms-text-muted: rgba(0, 0, 0, 0.6);
+  --kp-ms-tooltip-bg: #1c1c1f;
+  --kp-ms-tooltip-text: #ffffff;
 }
 
 .kp-ms-root {
