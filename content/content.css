@@ -1,93 +1,146 @@
 /**
  * Kinopoisk MediaStack Extension - Content Styles
- * Стилизация виджета в дизайне «Кинопоиска».
+ * Точное соответствие дизайну и цветовой палитре «Кинопоиска» (Светлая и Тёмная темы).
  */
+
+:root {
+  /* Переменные для светлой темы Kinopoisk (по умолчанию) */
+  --kp-ms-bg-btn: #f2f2f5;
+  --kp-ms-bg-btn-hover: #e5e5ea;
+  --kp-ms-bg-btn-active: #dcdce2;
+  --kp-ms-text-primary: #141414;
+  --kp-ms-text-muted: #666666;
+  --kp-ms-border-subtle: rgba(0, 0, 0, 0.06);
+
+  --kp-ms-primary-grad: linear-gradient(90deg, #ff5500 0%, #ff6600 100%);
+  --kp-ms-primary-hover: linear-gradient(90deg, #ff6600 0%, #ff7711 100%);
+  --kp-ms-primary-shadow: 0 4px 16px rgba(255, 85, 0, 0.28);
+
+  --kp-ms-success-bg: #eafaf1;
+  --kp-ms-success-text: #059669;
+  --kp-ms-success-border: rgba(5, 150, 105, 0.25);
+
+  --kp-ms-info-bg: #e8f4fd;
+  --kp-ms-info-text: #0284c7;
+  --kp-ms-info-border: rgba(2, 132, 199, 0.25);
+
+  --kp-ms-warning-bg: #fff8e6;
+  --kp-ms-warning-text: #b45309;
+  --kp-ms-warning-border: rgba(180, 83, 9, 0.25);
+
+  --kp-ms-tooltip-bg: #1c1c1f;
+  --kp-ms-tooltip-text: #ffffff;
+
+  --kp-ms-height: 52px;
+  --kp-ms-radius: 16px;
+}
+
+/* Тёмная тема Kinopoisk */
+.kp-ms-theme-dark,
+@media (prefers-color-scheme: dark) {
+  :root {
+    --kp-ms-bg-btn: rgba(255, 255, 255, 0.1);
+    --kp-ms-bg-btn-hover: rgba(255, 255, 255, 0.16);
+    --kp-ms-bg-btn-active: rgba(255, 255, 255, 0.22);
+    --kp-ms-text-primary: #ffffff;
+    --kp-ms-text-muted: rgba(255, 255, 255, 0.7);
+    --kp-ms-border-subtle: rgba(255, 255, 255, 0.12);
+
+    --kp-ms-success-bg: rgba(46, 213, 115, 0.15);
+    --kp-ms-success-text: #2ed573;
+    --kp-ms-success-border: rgba(46, 213, 115, 0.35);
+
+    --kp-ms-info-bg: rgba(56, 189, 248, 0.15);
+    --kp-ms-info-text: #38bdf8;
+    --kp-ms-info-border: rgba(56, 189, 248, 0.35);
+
+    --kp-ms-warning-bg: rgba(255, 171, 0, 0.15);
+    --kp-ms-warning-text: #ffab00;
+    --kp-ms-warning-border: rgba(255, 171, 0, 0.35);
+
+    --kp-ms-tooltip-bg: #2a2a2e;
+    --kp-ms-tooltip-text: #ffffff;
+  }
+}
 
 .kp-ms-root {
   display: inline-flex;
   align-items: center;
-  flex-wrap: wrap;
   gap: 10px;
-  margin: 12px 0;
   font-family: -apple-system, BlinkMacSystemFont, "Graphik Kinopoisk LC", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  line-height: 1.2;
+  font-size: 15px;
+  line-height: 1;
   user-select: none;
-  z-index: 100;
-  animation: kp-ms-fade-in 0.25s ease-out;
+  z-index: 10;
+  vertical-align: middle;
+  animation: kp-ms-fade-in 0.2s ease-out;
 }
 
 @keyframes kp-ms-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
 }
 
-/* Общий стиль для интерактивных кнопок */
+/* Базовый интерактивный стиль для кнопок */
 .kp-ms-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  height: 44px;
-  padding: 0 18px;
-  border-radius: 12px;
-  font-size: 14px;
+  gap: 10px;
+  height: var(--kp-ms-height);
+  padding: 0 20px;
+  border-radius: var(--kp-ms-radius);
+  font-size: 15px;
   font-weight: 500;
   cursor: pointer;
   outline: none;
-  border: 1px solid transparent;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid var(--kp-ms-border-subtle);
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
   box-sizing: border-box;
   white-space: nowrap;
 }
 
-.kp-ms-btn:focus-visible {
-  box-shadow: 0 0 0 2px rgba(255, 102, 0, 0.5);
-}
-
 /* Кнопка "Скачать" (стиль вторичной кнопки Кинопоиска) */
 .kp-ms-btn-download {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.16);
-  color: #ffffff;
-  backdrop-filter: blur(8px);
+  background-color: var(--kp-ms-bg-btn);
+  color: var(--kp-ms-text-primary);
+}
+
+.kp-ms-btn-download .kp-ms-icon {
+  fill: #ff5500; /* Фирменный оранжевый акцент иконки Кинопоиска */
 }
 
 .kp-ms-btn-download:hover {
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 255, 255, 0.3);
-  transform: translateY(-1px);
+  background-color: var(--kp-ms-bg-btn-hover);
+  color: var(--kp-ms-text-primary);
 }
 
 .kp-ms-btn-download:active {
-  transform: translateY(0);
-  background: rgba(255, 255, 255, 0.12);
+  background-color: var(--kp-ms-bg-btn-active);
+  transform: scale(0.98);
 }
 
-/* Кнопка "Смотреть в Jellyfin" (фирменный акцентный стиль) */
+/* Кнопка "Смотреть в Jellyfin" (фирменный стиль основной кнопки Кинопоиска) */
 .kp-ms-btn-watch {
-  background: linear-gradient(135deg, #00a4dc 0%, #aa5cc3 100%);
-  color: #ffffff;
+  background: var(--kp-ms-primary-grad);
+  color: #ffffff !important;
   font-weight: 600;
-  box-shadow: 0 4px 14px rgba(0, 164, 220, 0.3);
+  border: none;
+  box-shadow: var(--kp-ms-primary-shadow);
+}
+
+.kp-ms-btn-watch .kp-ms-icon {
+  fill: #ffffff;
 }
 
 .kp-ms-btn-watch:hover {
-  background: linear-gradient(135deg, #00b4f0 0%, #b869d3 100%);
-  box-shadow: 0 6px 20px rgba(0, 164, 220, 0.45);
-  transform: translateY(-1px);
+  background: var(--kp-ms-primary-hover);
+  box-shadow: 0 6px 20px rgba(255, 85, 0, 0.4);
 }
 
 .kp-ms-btn-watch:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(0, 164, 220, 0.3);
+  transform: scale(0.98);
 }
 
 /* Бейджи статусов */
@@ -95,9 +148,9 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 44px;
+  height: var(--kp-ms-height);
   padding: 0 16px;
-  border-radius: 12px;
+  border-radius: var(--kp-ms-radius);
   font-size: 14px;
   font-weight: 500;
   box-sizing: border-box;
@@ -106,25 +159,37 @@
 
 /* Статус: В медиатеке */
 .kp-ms-badge-available {
-  background: rgba(46, 213, 115, 0.12);
-  border: 1px solid rgba(46, 213, 115, 0.3);
-  color: #2ed573;
+  background-color: var(--kp-ms-success-bg);
+  border: 1px solid var(--kp-ms-success-border);
+  color: var(--kp-ms-success-text);
 }
 
-/* Статус: Запрошен / В очереди */
+.kp-ms-badge-available .kp-ms-icon {
+  fill: var(--kp-ms-success-text);
+}
+
+/* Статус: Запрошен */
 .kp-ms-badge-requested {
-  background: rgba(255, 171, 0, 0.12);
-  border: 1px solid rgba(255, 171, 0, 0.3);
-  color: #ffab00;
+  background-color: var(--kp-ms-warning-bg);
+  border: 1px solid var(--kp-ms-warning-border);
+  color: var(--kp-ms-warning-text);
+}
+
+.kp-ms-badge-requested .kp-ms-icon {
+  fill: var(--kp-ms-warning-text);
 }
 
 /* Статус: Качается */
 .kp-ms-badge-downloading {
-  background: rgba(0, 164, 220, 0.12);
-  border: 1px solid rgba(0, 164, 220, 0.3);
-  color: #38bdf8;
+  background-color: var(--kp-ms-info-bg);
+  border: 1px solid var(--kp-ms-info-border);
+  color: var(--kp-ms-info-text);
   position: relative;
   overflow: hidden;
+}
+
+.kp-ms-badge-downloading .kp-ms-icon {
+  fill: var(--kp-ms-info-text);
 }
 
 .kp-ms-progress-bar {
@@ -132,51 +197,51 @@
   left: 0;
   bottom: 0;
   height: 3px;
-  background: linear-gradient(90deg, #00a4dc, #38bdf8);
-  transition: width 0.4s ease;
-  box-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
+  background: #0284c7;
+  transition: width 0.3s ease;
 }
 
-/* Статус: Загрузка данных / Спиннер */
+/* Статус: Загрузка */
 .kp-ms-badge-loading {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.7);
+  background-color: var(--kp-ms-bg-btn);
+  border: 1px solid var(--kp-ms-border-subtle);
+  color: var(--kp-ms-text-muted);
 }
 
-/* Статус: Не настроено / Ошибка */
+/* Статус: Предупреждение / Ошибка */
 .kp-ms-badge-warning {
-  background: rgba(255, 71, 87, 0.12);
-  border: 1px solid rgba(255, 71, 87, 0.3);
+  background-color: rgba(255, 71, 87, 0.12);
+  border: 1px solid rgba(255, 71, 87, 0.25);
   color: #ff4757;
   cursor: pointer;
 }
 
-.kp-ms-badge-warning:hover {
-  background: rgba(255, 71, 87, 0.2);
+.kp-ms-badge-warning .kp-ms-icon {
+  fill: #ff4757;
 }
 
-/* SVG иконки */
+.kp-ms-badge-warning:hover {
+  background-color: rgba(255, 71, 87, 0.18);
+}
+
+/* Иконки */
 .kp-ms-icon {
-  width: 18px;
-  height: 18px;
-  fill: currentColor;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
 }
 
 .kp-ms-spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(0, 0, 0, 0.15);
   border-top-color: currentColor;
   border-radius: 50%;
-  animation: kp-ms-spin 0.8s linear infinite;
+  animation: kp-ms-spin 0.7s linear infinite;
 }
 
 @keyframes kp-ms-spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 /* Тултипы */
@@ -189,19 +254,19 @@
   visibility: hidden;
   opacity: 0;
   position: absolute;
-  bottom: 120%;
+  bottom: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%) translateY(4px);
-  background: #1e1e1e;
-  color: #efefef;
-  font-size: 12px;
-  padding: 6px 12px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  background: var(--kp-ms-tooltip-bg);
+  color: var(--kp-ms-tooltip-text);
+  font-size: 13px;
+  font-weight: 400;
+  padding: 8px 14px;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   white-space: nowrap;
   pointer-events: none;
-  transition: all 0.2s ease;
+  transition: all 0.18s ease;
   z-index: 1000;
 }
 
