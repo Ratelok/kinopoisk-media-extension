@@ -9,10 +9,10 @@
   const extApi = typeof browser !== 'undefined' ? browser : chrome;
   let currentActiveId = null;
 
-  // Иконки SVG (крупный Play треугольник, точь-в-точь как у Кинопоиска)
+  // Иконки SVG (четкий острый геометрический треугольник Play, идентичный Кинопоиску)
   const ICONS = {
     download: `<svg class="kp-ms-icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>`,
-    play: `<svg class="kp-ms-icon kp-ms-icon-play" viewBox="0 0 24 24"><path d="M6 4.34c0-1.04 1.15-1.68 2.03-1.13l12.28 7.66c.85.53.85 1.79 0 2.32L8.03 20.79c-.88.55-2.03-.09-2.03-1.13V4.34z"/></svg>`,
+    play: `<svg class="kp-ms-icon kp-ms-icon-play" viewBox="0 0 24 24"><path d="M6 4L20 12L6 20Z"/></svg>`,
     check: `<svg class="kp-ms-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`,
     clock: `<svg class="kp-ms-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>`,
     warning: `<svg class="kp-ms-icon" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>`
@@ -34,7 +34,7 @@
   }
 
   /**
-   * Точная адаптация стилей под нативные серые кнопки Кинопоиска («Буду смотреть», «...»)
+   * Точная адаптация геометрии и цветов под нативные кнопки Кинопоиска
    */
   function syncNativeGeometry(root, container) {
     if (!root || !container) return;
@@ -42,7 +42,7 @@
       const buttons = container.querySelectorAll('button');
       let targetBtn = null;
 
-      // Ищем именно вторичную серую кнопку ("Буду смотреть" или "..."), не главную оранжевую
+      // Ищем вторичную серую кнопку ("Буду смотреть" или "..."), не главную оранжевую
       for (const btn of buttons) {
         const text = (btn.textContent || '').trim().toLowerCase();
         if (text.includes('буду смотреть') || text.includes('...') || text.includes('оценить') || text === '') {
@@ -57,7 +57,6 @@
 
       if (targetBtn) {
         const comp = window.getComputedStyle(targetBtn);
-        // Заимствуем серый фон соседних кнопок
         if (comp.backgroundColor && comp.backgroundColor !== 'transparent' && comp.backgroundColor !== 'rgba(0, 0, 0, 0)') {
           root.style.setProperty('--kp-ms-bg-btn', comp.backgroundColor);
         }
@@ -134,7 +133,7 @@
       originalTitle = originalTitle.replace(/\s*\b\d+\+\s*$/, '').trim();
     }
 
-    // 4. Fallback года из ссылок или текста
+    // 4. Fallback года
     if (!year) {
       const yearLink = document.querySelector('a[href*="/lists/movies/year--"]');
       if (yearLink) {
@@ -338,7 +337,7 @@
   }
 
   /**
-   * Отрисовка состояния «Качается (X%)» (серый фон + прогресс бар)
+   * Отрисовка состояния «Качается (X%)» (серый фон + синяя полоса)
    */
   function renderDownloading(container, progress) {
     const root = getOrCreateWidget(container);
@@ -360,7 +359,7 @@
   }
 
   /**
-   * Отрисовка «Смотреть в Jellyfin» (оранжевая кнопка с крупным Play) + серый бейдж «Скачан»
+   * Отрисовка «Смотреть в Jellyfin» (острый Play треугольник) + серый бейдж «Скачан»
    */
   function renderAvailable(container, jellyfinUrl) {
     const root = getOrCreateWidget(container);
