@@ -119,35 +119,40 @@
         mediaType
       );
 
-      // 3. Формирование ссылки на просмотр в Jellyfin
+      // 3. Дополнительная проверка в Jellyfin (если настроен)
       let jellyfinPlayUrl = null;
-      if (details.status === 'AVAILABLE' && settings.jellyfinUrl) {
-        if (details.jellyfinMediaId) {
+      let finalStatus = details.status;
+
+      if (settings.jellyfinUrl) {
+        let itemId = details.jellyfinMediaId;
+
+        // Если ID нет в Jellyseerr или статус еще не AVAILABLE, проверяем саму библиотеку Jellyfin
+        if (!itemId && settings.jellyfinApiKey) {
+          try {
+            itemId = await globalThis.JellyfinApi.findMediaItem(
+              settings.jellyfinUrl,
+              settings.jellyfinApiKey,
+              meta
+            );
+          } catch (_) {}
+        }
+
+        // Если нашли ID в Jellyfin -> фильм 100% скачан и доступен!
+        if (itemId) {
+          finalStatus = 'AVAILABLE';
           jellyfinPlayUrl = globalThis.JellyfinApi.buildPlayUrl(
             settings.jellyfinUrl,
-            details.jellyfinMediaId
+            itemId
           );
-        } else {
-          // Fallback: пробуем найти по названию напрямую в Jellyfin
-          const itemId = await globalThis.JellyfinApi.findMediaItem(
-            settings.jellyfinUrl,
-            settings.jellyfinApiKey,
-            meta
-          );
-          if (itemId) {
-            jellyfinPlayUrl = globalThis.JellyfinApi.buildPlayUrl(
-              settings.jellyfinUrl,
-              itemId
-            );
-          } else {
-            // Если ID не найден, даем ссылку на веб-интерфейс
-            jellyfinPlayUrl = `${settings.jellyfinUrl.replace(/\/+$/, '')}/web/index.html`;
-          }
+        } else if (finalStatus === 'AVAILABLE') {
+          // Если Jellyseerr считает доступным, но конкретный ID неизвестен - даем ссылку на поиск
+          const cleanQuery = encodeURIComponent(details.title || meta.title || '');
+          jellyfinPlayUrl = `${settings.jellyfinUrl.replace(/\/+$/, '')}/web/index.html#!/search.html?query=${cleanQuery}`;
         }
       }
 
       const result = {
-        status: details.status,
+        status: finalStatus,
         tmdbId,
         mediaType,
         title: details.title,

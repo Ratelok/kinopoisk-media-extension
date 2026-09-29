@@ -192,13 +192,24 @@
     }
 
     let parsedStatus = 'NOT_REQUESTED';
-    if (rawStatus === MEDIA_STATUS.AVAILABLE) {
+    // 1. Если тайтл уже привязан к Jellyfin - он 100% скачан и доступен
+    if (mediaInfo.jellyfinMediaId || mediaInfo.jellyfinMediaId4k) {
       parsedStatus = 'AVAILABLE';
-    } else if (rawStatus === MEDIA_STATUS.PARTIALLY_AVAILABLE) {
+    }
+    // 2. Если статус Jellyseerr: Доступен (4) или Частично доступен (5)
+    else if (rawStatus === MEDIA_STATUS.AVAILABLE || rawStatus === MEDIA_STATUS.PARTIALLY_AVAILABLE) {
       parsedStatus = 'AVAILABLE';
-    } else if (isDownloading && downloadProgress !== null) {
+    }
+    // 3. Если скачивание завершено на 100% (размер скачан, сидирование или импорт)
+    else if (downloadProgress !== null && downloadProgress >= 100) {
+      parsedStatus = 'AVAILABLE';
+    }
+    // 4. Если процесс скачивания активен и процент < 100%
+    else if (isDownloading && downloadProgress !== null && downloadProgress < 100) {
       parsedStatus = 'DOWNLOADING';
-    } else if (rawStatus === MEDIA_STATUS.PROCESSING || rawStatus === MEDIA_STATUS.PENDING_APPROVAL) {
+    }
+    // 5. Если запрошен / ожидает одобрения
+    else if (rawStatus === MEDIA_STATUS.PROCESSING || rawStatus === MEDIA_STATUS.PENDING_APPROVAL) {
       parsedStatus = 'REQUESTED';
     }
 
