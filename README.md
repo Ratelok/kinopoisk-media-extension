@@ -3,11 +3,12 @@
 </p>
 
 <p align="center">
-  <a href="dist/kinopoisk-mediastack.xpi?raw=true"><img src="https://img.shields.io/badge/Mozilla_AMO-Подписано_Mozilla-2e7d32?style=for-the-badge&logo=firefox-browser&logoColor=white" alt="Подписано Mozilla"></a>
-  <a href="https://github.com"><img src="https://img.shields.io/badge/Firefox-Extension-FF7139?style=for-the-badge&logo=firefox-browser&logoColor=white" alt="Firefox Extension"></a>
-  <a href="https://github.com"><img src="https://img.shields.io/badge/Manifest-V3-10B981?style=for-the-badge&logo=webextensions&logoColor=white" alt="Manifest V3"></a>
-  <a href="https://github.com"><img src="https://img.shields.io/badge/Jellyseerr-Overseerr-6366F1?style=for-the-badge&logo=jellyfin&logoColor=white" alt="Jellyseerr"></a>
-  <a href="https://github.com"><img src="https://img.shields.io/badge/Jellyfin-Player-00A4DC?style=for-the-badge&logo=jellyfin&logoColor=white" alt="Jellyfin"></a>
+  <a href="https://github.com/Ratelok/kinopoisk-media-extension/releases/latest"><img src="https://img.shields.io/badge/Mozilla_AMO-Подписано_Mozilla-2e7d32?style=for-the-badge&logo=firefox-browser&logoColor=white" alt="Подписано Mozilla"></a>
+  <a href="https://github.com/Ratelok/kinopoisk-media-extension/releases/latest"><img src="https://img.shields.io/badge/Firefox-Extension-FF7139?style=for-the-badge&logo=firefox-browser&logoColor=white" alt="Firefox Extension"></a>
+  <a href="https://github.com/Ratelok/kinopoisk-media-extension/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/Ratelok/kinopoisk-media-extension/ci.yml?branch=main&style=for-the-badge&label=CI&logo=githubactions&logoColor=white" alt="CI Status"></a>
+  <a href="manifest.json"><img src="https://img.shields.io/badge/Manifest-V3-10B981?style=for-the-badge&logo=webextensions&logoColor=white" alt="Manifest V3"></a>
+  <a href="https://github.com/Ratelok/kinopoisk-media-extension"><img src="https://img.shields.io/badge/Jellyseerr-Overseerr-6366F1?style=for-the-badge&logo=jellyfin&logoColor=white" alt="Jellyseerr"></a>
+  <a href="https://github.com/Ratelok/kinopoisk-media-extension"><img src="https://img.shields.io/badge/Jellyfin-Player-00A4DC?style=for-the-badge&logo=jellyfin&logoColor=white" alt="Jellyfin"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License MIT"></a>
 </p>
 
@@ -21,11 +22,18 @@
 
 > [!IMPORTANT]
 > ### ⚡ Быстрая установка в Firefox (за 5 секунд)
-> 1. Скачайте подписанный файл дополнения: [**`kinopoisk-mediastack.xpi`**](dist/kinopoisk-mediastack.xpi?raw=true) (или со страницы [**Releases**](../../releases)).
-> 2. **Перетащите скачанный `.xpi` мышкой прямо в открытое окно Firefox.**
-> 3. Нажмите **«Добавить»** во всплывающем окне подтверждения.
 > 
-> *Файл расширения официально подписан Mozilla (AMO) — работает во всех стандартных версиях Firefox и остаётся навсегда (не пропадает после перезапуска браузера).*
+> <p align="center">
+>   <a href="https://github.com/Ratelok/kinopoisk-media-extension/releases/download/v1.0.0/kinopoisk-mediastack.xpi">
+>     <img src="https://img.shields.io/badge/Скачать_подписанное_расширение-.XPI-FF7139?style=for-the-badge&logo=firefox-browser&logoColor=white" alt="Скачать .xpi для Firefox">
+>   </a>
+> </p>
+> 
+> 1. Скачайте подписанный файл дополнения: [**`kinopoisk-mediastack.xpi`**](https://github.com/Ratelok/kinopoisk-media-extension/releases/download/v1.0.0/kinopoisk-mediastack.xpi) (или со страницы [**Releases**](https://github.com/Ratelok/kinopoisk-media-extension/releases/latest)).
+> 2. **Перетащите скачанный `.xpi` мышкой прямо в открытое окно Firefox** (или нажмите `Ctrl+O` в браузере и выберите файл).
+> 3. Нажмите **«Добавить»** во всплывающем окне подтверждения Firefox.
+> 
+> *Файл расширения официально подписан Mozilla (AMO) — работает во всех стандартных версиях Firefox (Stable, ESR, Developer Edition, Nightly) и остаётся навсегда (не требует режима разработчика и не пропадает после перезапуска браузера).*
 
 ---
 
@@ -53,10 +61,11 @@
   - Поддержка доменов (`https://requests.example.com`) и локальных IP-адресов (`http://192.168.1.100:5055`).
   - Встроенное тестирование подключения с проверкой сетевой задержки и версии серверов.
 
-- 🛡️ **Безопасность и автономность**
-  - Manifest V3, чистый Vanilla JavaScript, **ноль внешних зависимостей**.
-  - Фоновый воркер обходит CORS и политику безопасности контента (CSP) Кинопоиска.
-  - Никакой телеметрии и сторонних серверов — данные передаются исключительно между вашим браузером и вашим сервером.
+- 🛡️ **Безопасность и соответствие стандартам Mozilla**
+  - Manifest V3, строгий CSP, **ноль внешних зависимостей**.
+  - **100% чистая валидация Mozilla**: 0 ошибок, 0 предупреждений в официальном линтере `addons-linter`.
+  - Полный отказ от небезопасного `innerHTML` — все интерфейсные элементы создаются исключительно через безопасные нативные методы DOM (`document.createElement`, `replaceChildren`, `textContent`).
+  - Политика сбора данных: `required: ["none"]` — никакой телеметрии, трекеров и сторонних серверов. Запросы передаются исключительно между вашим браузером и вашим медиасервером.
 
 ---
 
@@ -81,14 +90,17 @@ flowchart LR
 
 Расширение прошло верификацию и подписано Mozilla (AMO), поэтому поддерживается любой версией Firefox (Stable, ESR, Developer Edition, Nightly):
 
-1. Скачайте файл дополнения: [**`kinopoisk-mediastack.xpi`**](dist/kinopoisk-mediastack.xpi?raw=true) (или со страницы [**Releases**](../../releases)).
+1. Скачайте файл дополнения: [**`kinopoisk-mediastack.xpi`**](https://github.com/Ratelok/kinopoisk-media-extension/releases/download/v1.0.0/kinopoisk-mediastack.xpi) (также доступен в разделе [**Releases**](https://github.com/Ratelok/kinopoisk-media-extension/releases/latest)).
 2. **Перетащите скачанный `.xpi` мышкой в любое открытое окно Firefox** (или нажмите `Ctrl+O` в браузере и выберите скачанный файл).
 3. Во всплывающем окне подтверждения нажмите **«Добавить»**.
 4. Расширение установлено навсегда!
 
 ### Вариант 2: Для разработчиков (через `about:debugging`)
 
-1. Клонируйте репозиторий или скачайте архив с кодом.
+1. Клонируйте репозиторий:
+   ```bash
+   git clone git@github.com:Ratelok/kinopoisk-media-extension.git
+   ```
 2. В браузере Firefox откройте служебную вкладку:
    ```text
    about:debugging#/runtime/this-firefox
